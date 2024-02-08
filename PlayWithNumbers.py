@@ -28,15 +28,11 @@ class Game:
         self.result_label.pack(pady=10)
 
         self.scores = [0, 0]  # Initialize scores here
-        self.should_regenerate = True  # Flag to determine whether to regenerate the equation
 
     def generate_and_display(self):
-        if self.should_regenerate:
-            self.generate_equation()
-
+        self.generate_equation()
         equation_text = f"The quadratic equation with roots is: 1x^2 + ({-self.roots[0] + -self.roots[1]})x + {self.roots[0] * self.roots[1]} = 0"
         self.label.config(text=equation_text)
-        
 
     def generate_equation(self):
         numbers = np.arange(1, 21)
@@ -57,19 +53,17 @@ class Game:
             return
 
         self.process_choice(player, choice)
+        self.generate_and_display()  # Automatically regenerate equation after the turn
 
     def skip_turn(self):
         skip_choice = simpledialog.askstring("Skip Turn", "Is the other player willing to skip? (Enter 'yes' or 'no')")
         if skip_choice and skip_choice.lower() == 'yes':
-            self.should_regenerate = True
-            player = self.scores.index(max(self.scores))
-            bala=f"Equation skipped for this turn \n Player {player+1} should play"
-            self.result_label.config(text=bala)
-        else:
-            self.should_regenerate = False
             self.process_choice(0, -1)  # Player 1 skips the turn
+            self.generate_and_display()  # Automatically regenerate equation after the turn
+        player = self.scores.index(max(self.scores))
+        score_text = f"The turn is skipped \n Player {player+1} should play"
+        self.result_label.config(text=score_text)
 
-        self.generate_and_display()  # Automatically regenerate equation after the turn
 
     def process_choice(self, player, choice):
         if choice == max(self.roots):
@@ -78,10 +72,9 @@ class Game:
             pass  # Skip turn, no scores
         else:
             self.scores[1 - player] += self.diff
-
-        score_text = f"The scores are: Player 1 - {self.scores[0]}, Player 2 - {self.scores[1]}\n Player {player+1} should play"
+        player = self.scores.index(max(self.scores))
+        score_text = f"The scores are: Player 1 - {self.scores[0]}, Player 2 - {self.scores[1]} \n Player {player+1} should play"
         self.result_label.config(text=score_text)
-        
 
         if max(self.scores) >= 100:
             self.result_label.config(text=f"Player {player + 1} wins!")
